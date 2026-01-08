@@ -27,6 +27,9 @@ body {
 }
 
 header.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: #0f1b33;
   border-bottom: 1px solid #1e2a44;
   padding: 14px 20px;
@@ -35,6 +38,13 @@ header.top {
 header.top h1 {
   margin: 0;
   font-size: 18px;
+}
+
+header.top .logo {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .main {
