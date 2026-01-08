@@ -19,6 +19,8 @@ textarea,
 button,
 pre {
   font-family: "JetBrains Mono", monospace;
+  font-weight: 400;
+  font-style: normal;
 }
 
 body {
