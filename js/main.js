@@ -64,23 +64,56 @@ function parse(text){
   return out
 }
 
+function syncScroll(from,to){
+  const ratio=from.scrollTop/(from.scrollHeight-from.clientHeight||1)
+  to.scrollTop=ratio*(to.scrollHeight-to.clientHeight)
+}
+
+let lock=false
+
+input.addEventListener("scroll",()=>{
+  if(lock)return
+  lock=true
+  syncScroll(input,output)
+  lock=false
+})
+
+output.addEventListener("scroll",()=>{
+  if(lock)return
+  lock=true
+  syncScroll(output,input)
+  lock=false
+})
+
 function update(){
   output.textContent=parse(input.value)
+  input.scrollTop=input.scrollHeight
+  output.scrollTop=output.scrollHeight
   localStorage.setItem("dm-input",input.value)
   localStorage.setItem("dm-slash",slash.checked)
 }
 
 function load(){
-  const saved = localStorage.getItem("dm-input")
-  if (saved === null || saved.trim() === "") {
-    input.value = DEFAULT_INPUT
-  } else {
-    input.value = saved
-  }
-
-  slash.checked = localStorage.getItem("dm-slash") === "true"
+  const saved=localStorage.getItem("dm-input")
+  input.value=saved&&saved.trim()!==""?saved:DEFAULT_INPUT
+  slash.checked=localStorage.getItem("dm-slash")==="true"
   update()
 }
+
+input.addEventListener("keydown",e=>{
+  if(e.key!=="Enter")return
+  const start=input.selectionStart
+  const value=input.value
+  const lineStart=value.lastIndexOf("\n",start-1)+1
+  const line=value.slice(lineStart,start)
+  const indent=line.match(/^\s*/)[0]
+  e.preventDefault()
+  const insert="\n"+indent
+  input.value=value.slice(0,start)+insert+value.slice(start)
+  const pos=start+insert.length
+  input.selectionStart=input.selectionEnd=pos
+  update()
+})
 
 copy.onclick=()=>{
   navigator.clipboard.writeText(output.textContent)
@@ -92,32 +125,6 @@ reset.onclick=()=>{
   slash.checked=false
   update()
 }
-
-input.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") return
-
-  const start = input.selectionStart
-  const value = input.value
-
-  const lineStart = value.lastIndexOf("\n", start - 1) + 1
-  const line = value.slice(lineStart, start)
-
-  const indent = line.match(/^\s*/)[0]
-
-  e.preventDefault()
-
-  const insert = "\n" + indent
-
-  input.value =
-    value.slice(0, start) +
-    insert +
-    value.slice(start)
-
-  const newPos = start + insert.length
-  input.selectionStart = input.selectionEnd = newPos
-
-  update()
-})
 
 input.oninput=update
 slash.onchange=update
