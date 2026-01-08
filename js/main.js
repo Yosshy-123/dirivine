@@ -93,6 +93,32 @@ reset.onclick=()=>{
   update()
 }
 
+input.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return
+
+  const start = input.selectionStart
+  const value = input.value
+
+  const lineStart = value.lastIndexOf("\n", start - 1) + 1
+  const line = value.slice(lineStart, start)
+
+  const indent = line.match(/^\s*/)[0]
+
+  e.preventDefault()
+
+  const insert = "\n" + indent
+
+  input.value =
+    value.slice(0, start) +
+    insert +
+    value.slice(start)
+
+  const newPos = start + insert.length
+  input.selectionStart = input.selectionEnd = newPos
+
+  update()
+})
+
 input.oninput=update
 slash.onchange=update
 
