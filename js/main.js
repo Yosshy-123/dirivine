@@ -165,9 +165,17 @@ input.addEventListener("keydown", (e) => {
 
 copy.addEventListener("click", () => {
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(output.textContent).catch((err) => {
-      alert("コピーに失敗しました:", err);
-    });
+    navigator.clipboard.writeText(output.textContent)
+      .then(() => {
+        const originalText = copy.textContent;
+        copy.textContent = "Copied!";
+        setTimeout(() => {
+          copy.textContent = originalText;
+        }, 1500);
+      })
+      .catch((err) => {
+        alert("コピーに失敗しました:", err);
+      });
   }
 });
 
