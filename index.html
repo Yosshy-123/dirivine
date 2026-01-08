@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dir Tree</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/css2.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="top">
+  <h1>Dir Tree</h1>
+</header>
+
+<main class="main">
+  <div class="section-header left">
+    <p>STRUCTURE INPUT</p>
+    <button id="reset" type="button">Reset</button>
+  </div>
+
+  <div class="section-header right">
+    <p>PREVIEW</p>
+    <div class="preview-tools">
+      <label class="toggle">
+        <input type="checkbox" id="slash">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="label-text">Add trailing slash</span>
+      </label>
+      <button id="copy" type="button">Copy</button>
+    </div>
+  </div>
+
+  <textarea id="input" spellcheck="false"></textarea>
+  <pre id="output" aria-live="polite"></pre>
+</main>
+
+<script src="js/main.js"></script>
+</body>
+</html>
