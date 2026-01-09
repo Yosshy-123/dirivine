@@ -147,12 +147,37 @@ input.addEventListener("keydown", (e) => {
 
   const start = input.selectionStart;
   const value = input.value;
+
   const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-  const line = value.slice(lineStart, start);
-  const indentMatch = line.match(/^\s*/);
-  const indent = indentMatch ? indentMatch[0] : "";
+  const nextNewline = value.indexOf("\n", lineStart);
+  const lineEnd = nextNewline === -1 ? value.length : nextNewline;
+  const fullLine = value.slice(lineStart, lineEnd);
 
   e.preventDefault();
+
+  if (fullLine === " " && start === lineStart + 1) {
+    const before = value.slice(0, lineStart);
+    const after = value.slice(start);
+    const withoutSpace = before + after;
+
+    const insert = `\n `;
+    const newValue = withoutSpace.slice(0, lineStart) + insert + withoutSpace.slice(lineStart);
+
+    input.value = newValue;
+
+    const newPos = lineStart + insert.length;
+    input.selectionStart = input.selectionEnd = newPos;
+
+    update();
+    return;
+  }
+
+  const indentMatch = fullLine.match(/^\s*/);
+  let indent = indentMatch ? indentMatch[0] : "";
+
+  if (indent.length === 0) {
+    indent = " ";
+  }
 
   const insert = `\n${indent}`;
   input.value = value.slice(0, start) + insert + value.slice(start);
