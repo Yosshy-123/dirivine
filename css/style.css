@@ -118,6 +118,7 @@ button {
   border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 button:hover {
@@ -171,4 +172,50 @@ button:hover {
 
 .toggle input:focus-visible + .track {
   box-shadow: 0 0 0 2px rgba(91, 124, 250, 0.6);
+}
+
+button.copy-success {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  animation: copy-success-pulse 0.4s ease;
+}
+
+button.copy-error {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+  animation: copy-error-pulse 0.4s ease;
+}
+
+@keyframes copy-success-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    transform: scale(1);
+  }
+}
+
+@keyframes copy-error-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    transform: scale(1);
+  }
 }
