@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration);
   };
 
-  const showCopySuccessOnButton = (message = "Copied", duration = 1500) => {
+  const showCopySuccessOnButton = (message = "Copied!", duration = 1500) => {
     const original = copy.textContent;
     copy.textContent = message;
     copy.classList.add("copy-success");
