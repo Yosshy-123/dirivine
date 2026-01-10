@@ -1,5 +1,9 @@
 "use strict";
 
+/* =========================
+ * Constants
+ * ========================= */
+
 const DEFAULT_INPUT = `/
  .github
   README.md
@@ -30,19 +34,28 @@ const DEFAULT_INPUT = `/
  LICENSE
  render.yaml`;
 
-const input = document.getElementById("input");
-const output = document.getElementById("output");
-const slash = document.getElementById("slash");
-const copy = document.getElementById("copy");
-const reset = document.getElementById("reset");
+/* =========================
+ * DOM Elements
+ * ========================= */
 
-const isLastSibling = (lines, i, indent) => {
-  for (let j = i + 1; j < lines.length; j += 1) {
-    const ni = lines[j].match(/^\s*/)[0].length;
-    if (ni === indent) {
+const input  = document.getElementById("input");
+const output = document.getElementById("output");
+const slash  = document.getElementById("slash");
+const copy   = document.getElementById("copy");
+const reset  = document.getElementById("reset");
+
+/* =========================
+ * Tree Parsing Utilities
+ * ========================= */
+
+const isLastSibling = (lines, index, indent) => {
+  for (let i = index + 1; i < lines.length; i += 1) {
+    const nextIndent = lines[i].match(/^\s*/)[0].length;
+
+    if (nextIndent === indent) {
       return false;
     }
-    if (ni < indent) {
+    if (nextIndent < indent) {
       return true;
     }
   }
@@ -50,82 +63,87 @@ const isLastSibling = (lines, i, indent) => {
 };
 
 const parse = (text) => {
-  const lines = text.split("\n").filter((l) => l.trim() !== "");
-  const stack = [];
-  let out = "";
+  const lines = text
+    .split("\n")
+    .filter((line) => line.trim() !== "");
 
-  lines.forEach((line, i) => {
-    const indentMatch = line.match(/^\s*/);
-    const indent = indentMatch ? indentMatch[0].length : 0;
+  const stack = [];
+  let result = "";
+
+  lines.forEach((line, index) => {
+    const indent = line.match(/^\s*/)[0].length;
     const name = line.trim();
 
-    const nextIndent = i < lines.length - 1
-      ? lines[i + 1].match(/^\s*/)[0].length
-      : -1;
+    const nextIndent =
+      index < lines.length - 1
+        ? lines[index + 1].match(/^\s*/)[0].length
+        : -1;
 
     const isDir = nextIndent > indent;
-    const last = isLastSibling(lines, i, indent);
+    const last = isLastSibling(lines, index, indent);
 
+    /* Root level */
     if (indent === 0) {
-      while (stack.length) {
-        stack.pop();
-      }
+      stack.length = 0;
 
-      if (slash.checked && isDir && !name.endsWith("/")) {
-        out += `${name}/\n`;
-      } else {
-        out += `${name}\n`;
-      }
+      result += slash.checked && isDir && !name.endsWith("/")
+        ? `${name}/\n`
+        : `${name}\n`;
 
       return;
     }
 
+    /* Adjust stack */
     while (stack.length && stack[stack.length - 1].indent >= indent) {
       stack.pop();
     }
 
+    /* Prefix */
     let prefix = "";
-    stack.forEach((s) => {
-      prefix += s.last ? "   " : "│  ";
+    stack.forEach((node) => {
+      prefix += node.last ? "   " : "│  ";
     });
 
-    out += prefix + (last ? "└─ " : "├─ ") + name;
-    if (slash.checked && isDir && !name.endsWith("/")) {
-      out += "/";
-    }
-    out += "\n";
+    result += prefix + (last ? "└─ " : "├─ ") + name;
 
+    if (slash.checked && isDir && !name.endsWith("/")) {
+      result += "/";
+    }
+
+    result += "\n";
     stack.push({ indent, last });
   });
 
-  return out;
+  return result;
 };
 
+/* =========================
+ * Scroll Synchronization
+ * ========================= */
+
 const syncScroll = (from, to) => {
-  const denom = from.scrollHeight - from.clientHeight || 1;
-  const ratio = from.scrollTop / denom;
+  const maxFrom = from.scrollHeight - from.clientHeight || 1;
+  const ratio = from.scrollTop / maxFrom;
   to.scrollTop = ratio * (to.scrollHeight - to.clientHeight);
 };
 
-let lock = false;
+let scrollLock = false;
 
-input.addEventListener("scroll", () => {
-  if (lock) {
-    return;
-  }
-  lock = true;
-  syncScroll(input, output);
-  lock = false;
-});
+const bindSyncScroll = (source, target) => {
+  source.addEventListener("scroll", () => {
+    if (scrollLock) return;
+    scrollLock = true;
+    syncScroll(source, target);
+    scrollLock = false;
+  });
+};
 
-output.addEventListener("scroll", () => {
-  if (lock) {
-    return;
-  }
-  lock = true;
-  syncScroll(output, input);
-  lock = false;
-});
+bindSyncScroll(input, output);
+bindSyncScroll(output, input);
+
+/* =========================
+ * State Management
+ * ========================= */
 
 const update = () => {
   output.textContent = parse(input.value);
@@ -134,50 +152,50 @@ const update = () => {
 };
 
 const load = () => {
-  const saved = localStorage.getItem("dm-input");
-  input.value = saved && saved.trim() !== "" ? saved : DEFAULT_INPUT;
+  const savedInput = localStorage.getItem("dm-input");
+
+  input.value =
+    savedInput && savedInput.trim() !== ""
+      ? savedInput
+      : DEFAULT_INPUT;
+
   slash.checked = localStorage.getItem("dm-slash") === "true";
   update();
 };
 
+/* =========================
+ * Input Handling
+ * ========================= */
+
 input.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") {
-    return;
-  }
+  if (e.key !== "Enter") return;
 
   const start = input.selectionStart;
   const value = input.value;
 
   const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-  const nextNewline = value.indexOf("\n", lineStart);
-  const lineEnd = nextNewline === -1 ? value.length : nextNewline;
-  const fullLine = value.slice(lineStart, lineEnd);
+  const lineEnd =
+    value.indexOf("\n", lineStart) === -1
+      ? value.length
+      : value.indexOf("\n", lineStart);
 
+  const fullLine = value.slice(lineStart, lineEnd);
   e.preventDefault();
 
+  /* Special case: single space line */
   if (fullLine === " " && start === lineStart + 1) {
     const before = value.slice(0, lineStart);
     const after = value.slice(start);
-    const withoutSpace = before + after;
+    const insert = "\n ";
 
-    const insert = `\n `;
-    const newValue = withoutSpace.slice(0, lineStart) + insert + withoutSpace.slice(lineStart);
-
-    input.value = newValue;
-
-    const newPos = lineStart + insert.length;
-    input.selectionStart = input.selectionEnd = newPos;
-
+    input.value = before + insert + after;
+    input.selectionStart = input.selectionEnd = lineStart + insert.length;
     update();
     return;
   }
 
-  const indentMatch = fullLine.match(/^\s*/);
-  let indent = indentMatch ? indentMatch[0] : "";
-
-  if (indent.length === 0) {
-    indent = " ";
-  }
+  let indent = fullLine.match(/^\s*/)[0];
+  if (indent.length === 0) indent = " ";
 
   const insert = `\n${indent}`;
   input.value = value.slice(0, start) + insert + value.slice(start);
@@ -188,20 +206,25 @@ input.addEventListener("keydown", (e) => {
   update();
 });
 
+/* =========================
+ * Buttons
+ * ========================= */
+
 copy.addEventListener("click", () => {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(output.textContent)
-      .then(() => {
-        const originalText = copy.textContent;
-        copy.textContent = "Copied!";
-        setTimeout(() => {
-          copy.textContent = originalText;
-        }, 1500);
-      })
-      .catch((err) => {
-        alert("コピーに失敗しました:", err);
-      });
-  }
+  if (!navigator.clipboard?.writeText) return;
+
+  navigator.clipboard
+    .writeText(output.textContent)
+    .then(() => {
+      const original = copy.textContent;
+      copy.textContent = "Copied!";
+      setTimeout(() => {
+        copy.textContent = original;
+      }, 1500);
+    })
+    .catch((err) => {
+      alert("コピーに失敗しました:", err);
+    });
 });
 
 reset.addEventListener("click", () => {
@@ -211,7 +234,10 @@ reset.addEventListener("click", () => {
   update();
 });
 
+/* =========================
+ * Init
+ * ========================= */
+
 input.addEventListener("input", update);
 slash.addEventListener("change", update);
-
 document.addEventListener("DOMContentLoaded", load);
