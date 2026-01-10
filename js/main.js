@@ -197,6 +197,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }, duration);
   };
 
+  const showCopySuccessOnButton = (message = "Copied", duration = 1500) => {
+    const original = copy.textContent;
+    copy.textContent = message;
+    copy.classList.add("copy-success");
+    setTimeout(() => {
+      copy.textContent = original;
+      copy.classList.remove("copy-success");
+    }, duration);
+  };
+
   copy.addEventListener("click", async () => {
     const text = output.textContent;
     if (!text) return;
@@ -204,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(text);
+        showCopySuccessOnButton();
       } catch (err) {
         console.error("navigator.clipboard.writeText error:", err);
         showCopyErrorOnButton();
@@ -225,6 +236,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!ok) {
         console.error("document.execCommand('copy') returned false.");
         showCopyErrorOnButton();
+      } else {
+        showCopySuccessOnButton();
+      }
       }
     } catch (err) {
       console.error("Fallback copy failed:", err);
