@@ -239,7 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         showCopySuccessOnButton();
       }
-      }
     } catch (err) {
       console.error("Fallback copy failed:", err);
       showCopyErrorOnButton();
