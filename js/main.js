@@ -19,13 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
    favicon-96x96.png
  src
   worker.js
- variants
-  standalone
-   server.js
-   package.json
-  redis-only
-   server.js
-   package.json
  server.js
  package.json
  LICENSE
