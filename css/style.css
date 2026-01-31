@@ -77,38 +77,21 @@ header.top .logo {
   gap: 12px;
 }
 
-textarea,
-pre {
+/* Monaco editor containers */
+.editor {
   width: 100%;
   height: 100%;
   min-height: 0;
-  background: #0a1224;
-  border: 1px solid #22304a;
   border-radius: 8px;
-  padding: 14px 16px;
-  color: #dbe2f1;
-  font-size: 14px;
-  line-height: 1.6;
-  overflow: auto;
+  overflow: hidden;
+  border: 1px solid #22304a;
+  background: #0a1224;
+  padding: 0;
 }
 
-textarea {
-  grid-column: 1;
-  grid-row: 2;
-  resize: none;
-  outline: none;
-}
-
-textarea:focus {
-  border-color: #5b7cfa;
-}
-
-pre {
-  grid-column: 2;
-  grid-row: 2;
-  margin: 0;
-  white-space: pre;
-}
+/* Grid placement */
+#input-editor { grid-column: 1; grid-row: 2; }
+#output-editor { grid-column: 2; grid-row: 2; }
 
 button {
   background: transparent;
