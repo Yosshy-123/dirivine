@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Dirivine</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
-<link rel="stylesheet" href="css/css2.css">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dirivine</title>
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/css2.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -35,10 +39,14 @@
     </div>
   </div>
 
-  <textarea id="input" spellcheck="false"></textarea>
-  <pre id="output" aria-live="polite"></pre>
+  <!-- Monaco editor containers -->
+  <div id="input-editor" class="editor" aria-label="Input editor"></div>
+  <div id="output-editor" class="editor" aria-label="Output preview"></div>
 </main>
 
+<!-- Monaco loader (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<!-- App logic -->
 <script src="js/main.js"></script>
 </body>
 </html>
